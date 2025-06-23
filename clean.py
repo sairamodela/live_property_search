@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import numpy as np
 
@@ -66,18 +64,7 @@ df = fill_missing_city_state(df)
 
 
 def fill_missing_coordinates_by_location(df):
-    """
-    Fills missing 'latitude' and 'longitude' values using:
-    1. Mode by 'postcode'
-    2. Mode by 'city' (fallback)
-
-    Parameters:
-        df (pd.DataFrame): DataFrame containing 'latitude', 'longitude', 'postcode', and 'city'
-
-    Returns:
-        pd.DataFrame: Updated DataFrame with missing coordinates filled
-    """
-    # Step 1: Fill latitude using postcode mode
+        # Step 1: Fill latitude using postcode mode
     df['latitude'] = df['latitude'].fillna(
         df.groupby('postcode')['latitude'].transform(
             lambda x: x.mode().iloc[0] if not x.mode().empty else np.nan
