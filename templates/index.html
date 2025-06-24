@@ -1,432 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Search</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"> -->
-    <link rel="stylesheet" href="https://unpkg.com/shards-ui@latest/dist/css/shards.min.css">
-    <script src="https://unpkg.com/shards-ui@latest/dist/js/shards.min.js"></script>
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .navbar {
-            background-color: #f1f3f5;
-        }
-        .navbar .navbar-brand {
-            font-weight: 600;
-            color: #495057;
-        }
-        .navbar .nav-link {
-            color: #495057;
-        }
-        .navbar .nav-link:hover {
-            color: #0d6efd;
-        }
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 50px 0;
-            margin-bottom: -40px;
-        }
-        .search-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 10;
-        }
-        .search-input {
-            font-size: 1.1rem;
-            padding: 15px 50px 15px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 50px;
-            transition: all 0.3s;
-        }
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .search-btn {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #667eea;
-            border: none;
-            color: white;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        .search-btn:hover {
-            background: #764ba2;
-            transform: translateY(-50%) scale(1.1);
-        }
-        /* --- MODIFICATION 1: Add CSS to center the loading spinner --- */
-        .loading {
-            text-align: center;
-            padding: 40px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Search</title>
+
+  <!-- Bootstrap & Shards UI -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/shards-ui@latest/dist/css/shards.min.css">
+  <link rel="stylesheet" href="/Users/kittu/Downloads/live property search/templates/static/style.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
 <nav class="navbar navbar-expand-lg navbar-light shadow-sm px-4">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Property Search</a>
-        <div class="d-flex align-items-center">
-            <span class="me-3 text-muted">Hello, {{ username }}</span>
-            <a class="btn btn-outline-secondary" href="{{ url_for('logout') }}">Logout</a>
-        </div>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Property Search</a>
+    <div class="d-flex align-items-center">
+      <span class="me-3 text-muted">Hello, {{ username }}</span>
+      <a class="btn btn-outline-secondary" href="{{ url_for('logout') }}">Logout</a>
     </div>
+  </div>
 </nav>
 
-<!-- Hero Section -->
 <div class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold mb-3">Property Search System</h1>
-        <p class="lead">Search by any keyword - address, city, state, postcode, or property type</p>
-    </div>
+  <div class="container">
+    <h1 class="display-4 fw-bold mb-3">Property Search System</h1>
+    <p class="lead">Search by any keyword - address, city, state, postcode, or property type</p>
+  </div>
 </div>
 
+<div class="container" style="margin-top: -20px;">
+  <div class="search-container">
+    <form id="searchForm">
+      <div class="position-relative mb-4">
+        <input type="text" class="form-control search-input" id="searchInput" name="search" placeholder="Search by postcode, address, city, state, property type, or any keyword..." autocomplete="off">
+        <button type="submit" class="btn search-btn"><i class="bi bi-search"></i></button>
+      </div>
 
-    <div class="container" style="margin-top: -20px;">
-        <!-- Search Form -->
-        <div class="search-container">
-            <form id="searchForm">
-                <div class="position-relative mb-4"> <!-- Changed from search-wrapper to position-relative for button positioning -->
-                    <input 
-                        type="text" 
-                        class="form-control search-input" 
-                        id="searchInput" 
-                        name="search" 
-                        placeholder="Search by postcode, address, city, state, property type, or any keyword..."
-                        autocomplete="off"
-                    >
-                    <button type="submit" class="btn search-btn">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-                
-                <!-- Advanced Filters -->
-                <div class="text-center mb-3">
-                    <a class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" href="#advancedFilters" role="button">
-                        <i class="bi bi-sliders"></i> Advanced Filters
-                    </a>
-                </div>
-                
-                <div class="collapse" id="advancedFilters">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label for="min_price" class="form-label">Min Price</label>
-                            <input type="number" class="form-control" id="min_price" name="min_price" placeholder="Min price">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="max_price" class="form-label">Max Price</label>
-                            <input type="number" class="form-control" id="max_price" name="max_price" placeholder="Max price">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="min_bedrooms" class="form-label">Min Bedrooms</label>
-                            <input type="number" class="form-control" id="min_bedrooms" name="min_bedrooms" placeholder="Min bedrooms">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="property_type" class="form-label">Property Type</label>
-                            <select class="form-control" id="property_type" name="property_type">
-                                <option value="">All Types</option>
-                                <option value="SINGLE_FAMILY">Single Family</option>
-                                <option value="CONDO">Condo</option>
-                                <option value="TOWNHOUSE">Townhouse</option>
-                                <option value="APARTMENT">Apartment</option>
-                                <option value="LOT">Lot</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-search"></i> Search
-                    </button>
-                    <button type="reset" class="btn btn-secondary px-4">
-                        <i class="bi bi-x-circle"></i> Clear
-                    </button>
-                </div>
-            </form>
+      <div class="text-center mb-3">
+        <a class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" href="#advancedFilters" role="button">
+          <i class="bi bi-sliders"></i> Advanced Filters
+        </a>
+      </div>
+
+      <div class="collapse" id="advancedFilters">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label for="min_price" class="form-label">Min Price</label>
+            <input type="number" class="form-control" id="min_price" name="min_price">
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="max_price" class="form-label">Max Price</label>
+            <input type="number" class="form-control" id="max_price" name="max_price">
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="min_bedrooms" class="form-label">Min Bedrooms</label>
+            <input type="number" class="form-control" id="min_bedrooms" name="min_bedrooms">
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="property_type" class="form-label">Property Type</label>
+            <select class="form-control" id="property_type" name="property_type">
+              <option value="">All Types</option>
+              <option value="SINGLE_FAMILY">Single Family</option>
+              <option value="CONDO">Condo</option>
+              <option value="TOWNHOUSE">Townhouse</option>
+              <option value="APARTMENT">Apartment</option>
+              <option value="LOT">Lot</option>
+            </select>
+          </div>
         </div>
-        
-        <!-- Loading Spinner -->
-        <div class="loading" style="display: none;">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-3">Searching properties...</p>
-        </div>
-        
-        <!-- Results Table -->
-        <div id="resultsSection" style="display: none;">
-            <h3 class="mb-3">Search Results</h3>
-            <div class="table-responsive">
-                <table id="resultsTable" class="table table-striped table-bordered" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Property ID</th>
-                            <th>Address</th>
-                            <th>City</th>
-                            <th>State</th>
-                            <th>Postcode</th>
-                            <th>Price</th>
-                            <th>Bedrooms</th>
-                            <th>Bathrooms</th>
-                            <th>Property Type</th>
-                            <th>Living Space</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-search"></i> Search</button>
+        <button type="reset" class="btn btn-secondary px-4"><i class="bi bi-x-circle"></i> Clear</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="loading" style="display: none;">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3">Searching properties...</p>
+  </div>
+
+  <div id="resultsSection" style="display: none;">
+    <h3 class="mb-3">Search Results</h3>
+    <div class="table-responsive">
+      <table id="resultsTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+          <tr>
+            <th>Property ID</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Postcode</th>
+            <th>Price</th>
+            <th>Bedrooms</th>
+            <th>Bathrooms</th>
+            <th>Property Type</th>
+            <th>Living Space</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
     </div>
+  </div>
+</div>
 
-    <!-- Property Details Modal (No Changes Here) -->
-    <div class="modal fade" id="propertyModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Property Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="propertyDetails">
-                </div>
-            </div>
-        </div>
+<div class="modal fade" id="propertyModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content shadow-lg rounded-3 border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">Property Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="propertyDetails"></div>
     </div>
+  </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    
-    <script>
-        // No changes to this section
-        let dataTable;
-        $(document).ready(function() {
-            dataTable = $('#resultsTable').DataTable({
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                order: [[5, 'asc']], 
-                columnDefs: [
-                    {
-                        targets: 5,
-                        render: function(data, type, row) {
-                            if (type === 'display' && data) {
-                                return '$' + parseFloat(data).toLocaleString();
-                            }
-                            return data;
-                        }
-                    },
-                    {
-                        targets: 9,
-                        render: function(data, type, row) {
-                            if (type === 'display' && data) {
-                                return parseFloat(data).toLocaleString() + ' sq ft';
-                            }
-                            return data;
-                        }
-                    }
-                ]
-            });
-            
-            $('#searchForm').on('submit', function(e) {
-                e.preventDefault();
-                performSearch();
-            });
-            
-            $('#searchForm').on('reset', function() {
-                setTimeout(function() {
-                    $('#resultsSection').hide();
-                    dataTable.clear().draw();
-                }, 100);
-            });
-            
-            $('#searchInput').focus();
-        });
-        
-        function performSearch() {
-            const searchValue = $('#searchInput').val().trim();
-            if (!searchValue && !$('#advancedFilters').hasClass('show')) {
-                alert('Please enter a search term or use advanced filters.');
-                return;
-            }
-            
-            // --- MODIFICATION 3: Disable buttons and show loader ---
-            // Hide previous results and show the loading spinner
-            $('#resultsSection').hide();
-            $('.loading').show();
-            
-            // Disable all buttons within the form to prevent multiple clicks
-            const $buttons = $('#searchForm').find('button');
-            $buttons.prop('disabled', true);
-            
-            const formData = {
-                search: searchValue,
-                min_price: $('#min_price').val(),
-                max_price: $('#max_price').val(),
-                min_bedrooms: $('#min_bedrooms').val(),
-                property_type: $('#property_type').val()
-            };
-            
-            $.ajax({
-                url: '/api/search',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(formData),
-                success: function(response) {
-                    if (response.success) {
-                        displayResults(response.data);
-                    } else {
-                        alert('Error: ' + response.error);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert('Error searching properties: ' + error);
-                },
-                // --- MODIFICATION 4: Use 'complete' to always hide spinner and re-enable buttons ---
-                complete: function() {
-                    $('.loading').hide();
-                    $buttons.prop('disabled', false);
-                }
-            });
-        }
-        
-        // No changes needed for the functions below this line
-        function displayResults(data) {
-            dataTable.clear();
-            
-            if (data.length === 0) {
-                $('#resultsSection').show();
-                dataTable.draw();
-                // A small improvement: use a custom message in the table instead of an alert
-                dataTable.clear().draw();
-                $('#resultsTable > tbody').html('<tr><td colspan="11" class="text-center">No properties found matching your criteria.</td></tr>');
-                return;
-            }
-            
-            data.forEach(function(property) {
-                const row = [
-                    property.property_id || '',
-                    property.address || '',
-                    property.city || '',
-                    property.state || '',
-                    property.postcode || '',
-                    property.price || 0,
-                    property.bedroom_number || 0,
-                    property.bathroom_number || 0,
-                    property.property_type || '',
-                    property.living_space || 0,
-                    `<button class="btn btn-sm btn-info" onclick="viewProperty('${property.property_id}')">
-                        <i class="bi bi-eye"></i> View
-                    </button>`
-                ];
-                dataTable.row.add(row);
-            });
-            
-            dataTable.draw();
-            $('#resultsSection').show();
-        }
-        
-        function viewProperty(propertyId) {
-            $('#propertyDetails').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
-            $('#propertyModal').modal('show');
-            
-            $.ajax({
-                url: `/api/property/${propertyId}`,
-                method: 'GET',
-                success: function(response) {
-                    if (response.success && response.data) {
-                        displayPropertyDetails(response.data);
-                    } else {
-                        $('#propertyDetails').html('<div class="alert alert-danger">Error loading property details.</div>');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    $('#propertyDetails').html('<div class="alert alert-danger">Error fetching property details: ' + error + '</div>');
-                }
-            });
-        }
-        
-        function displayPropertyDetails(property) {
-            let html = '<div class="row">';
-            html += '<div class="col-md-6">';
-            html += '<h6 class="text-primary mb-3"><i class="bi bi-info-circle"></i> Basic Information</h6>';
-            html += '<table class="table table-sm">';
-            html += `<tr><td><strong>Property ID:</strong></td><td>${property.property_id || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Address:</strong></td><td>${property.address || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Street Name:</strong></td><td>${property.street_name || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>City:</strong></td><td>${property.city || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>State:</strong></td><td>${property.state || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Postcode:</strong></td><td>${property.postcode || 'N/A'}</td></tr>`;
-            html += '</table>';
-            html += '</div>';
-            html += '<div class="col-md-6">';
-            html += '<h6 class="text-primary mb-3"><i class="bi bi-house"></i> Property Details</h6>';
-            html += '<table class="table table-sm">';
-            html += `<tr><td><strong>Price:</strong></td><td class="text-success fw-bold">$${property.price ? property.price.toLocaleString() : 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Bedrooms:</strong></td><td>${property.bedroom_number || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Bathrooms:</strong></td><td>${property.bathroom_number || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Property Type:</strong></td><td>${property.property_type || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Status:</strong></td><td>${property.property_status || 'N/A'}</td></tr>`;
-            html += '</table>';
-            html += '</div>';
-            html += '<div class="col-12 mt-3">';
-            html += '<h6 class="text-primary mb-3"><i class="bi bi-rulers"></i> Additional Information</h6>';
-            html += '<table class="table table-sm">';
-            html += `<tr><td width="200"><strong>Living Space:</strong></td><td>${property.living_space ? property.living_space.toLocaleString() + ' sq ft' : 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Land Space:</strong></td><td>${property.land_space ? property.land_space.toLocaleString() + ' ' + (property.land_space_unit || 'sq ft') : 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Price per Unit:</strong></td><td>${property.price_per_unit ? '$' + property.price_per_unit.toLocaleString() : 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Agency:</strong></td><td>${property.agency_name || 'N/A'}</td></tr>`;
-            html += `<tr><td><strong>Owned by Zillow:</strong></td><td>${property.is_owned_by_zillow ? 'Yes' : 'No'}</td></tr>`;
-            html += `<tr><td><strong>Run Date:</strong></td><td>${property.RunDate || 'N/A'}</td></tr>`;
-            html += '</table>';
-            html += '</div>';
-            if (property.latitude && property.longitude) {
-                html += '<div class="col-12 mt-3">';
-                html += '<h6 class="text-primary mb-3"><i class="bi bi-geo-alt"></i> Location</h6>';
-                html += '<table class="table table-sm">';
-                html += `<tr><td width="200"><strong>Coordinates:</strong></td><td>${property.latitude}, ${property.longitude}</td></tr>`;
-                html += '</table>';
-                html += '</div>';
-            }
-            if (property.property_url) {
-                html += '<div class="col-12 mt-3 text-center">';
-                html += `<a href="${property.property_url}" target="_blank" class="btn btn-primary">
-                    <i class="bi bi-box-arrow-up-right"></i> View on Original Site
-                </a>`;
-                html += '</div>';
-            }
-            html += '</div>';
-            $('#propertyDetails').html(html);
-        }
-        
-        $('#searchInput').on('keypress', function(e) {
-            if (e.which === 13) {
-                e.preventDefault();
-                $('#searchForm').submit();
-            }
-        });
-        
-    </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://unpkg.com/shards-ui@latest/dist/js/shards.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="/Users/kittu/Downloads/live property search/templates/static/script.js"></script>
+
 </body>
 </html>
