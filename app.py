@@ -61,7 +61,7 @@ def load_user(user_id):
         user_data = cursor.fetchone()
         cursor.close()
         conn.close()
-        
+
         if user_data:
             return User(
                 id=str(user_data['id']),
@@ -75,19 +75,19 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
+
         if username and password:
             conn = get_db_connection()
             if conn:
                 cursor = conn.cursor()
-                
+
                 # Check if username already exists
                 cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
                 if cursor.fetchone():
                     cursor.close()
                     conn.close()
                     return render_template('register.html', error="Username already exists")
-                
+
                 # Create new user
                 password_hash = generate_password_hash(password)
                 cursor.execute(
@@ -97,11 +97,11 @@ def register():
                 conn.commit()
                 cursor.close()
                 conn.close()
-                
+
                 return redirect(url_for('login'))
             else:
                 return render_template('register.html', error="Database connection failed")
-                
+
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -109,7 +109,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
+
         conn = get_db_connection()
         if conn:
             cursor = conn.cursor(dictionary=True)
@@ -117,7 +117,7 @@ def login():
             user_data = cursor.fetchone()
             cursor.close()
             conn.close()
-            
+
             if user_data and check_password_hash(user_data['password_hash'], password):
                 user = User(
                     id=str(user_data['id']),
@@ -130,7 +130,7 @@ def login():
                 return render_template('login.html', error="Invalid credentials")
         else:
             return render_template('login.html', error="Database connection failed")
-            
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -143,8 +143,6 @@ def logout():
 @login_required
 def home():
     return render_template('index.html', username=current_user.username)
-
-# [Keep all your existing search and property endpoints as they are]
 
 @app.route('/api/search', methods=['POST'])
 @login_required
@@ -277,7 +275,6 @@ def get_property_details(property_id):
             'error': str(e)
         }), 500
 
-# Add a route to check authentication status
 @app.route('/api/auth/status')
 def auth_status():
     return jsonify({
