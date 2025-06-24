@@ -102,7 +102,7 @@ def register():
             else:
                 return render_template('register.html', error="Database connection failed")
 
-    return render_template('register.html')
+    return render_template('register.html', current_year=datetime.now().year)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -131,7 +131,7 @@ def login():
         else:
             return render_template('login.html', error="Database connection failed")
 
-    return render_template('login.html')
+    return render_template('login.html', current_year=datetime.now().year)
 
 @app.route('/logout')
 @login_required
