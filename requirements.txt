@@ -1,3 +1,6 @@
 mysql-connector-python==8.2.0
 pandas==2.0.3
 numpy
+Flask
+flask-login
+Werkzeug
